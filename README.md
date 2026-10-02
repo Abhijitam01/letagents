@@ -1,6 +1,17 @@
-# LetAgents
+# Brancd
 
-Landing page and waitlist. Agents get a calm control layer for the cloud. Visitors leave an email, and it is stored in Postgres.
+Brancd is the cloud layer for agent-operated software. It gives coding agents a calm way to provision, deploy, observe, debug, and operate real infrastructure — without handing them an unbounded cloud console.
+
+This repository is the Brancd landing page and waitlist. Visitors leave an email, and it is stored in Postgres.
+
+## What Brancd is
+
+- **Agent-operated infrastructure.** Agents deploy applications, create environments, read logs, manage configuration, and troubleshoot from one layer.
+- **Observability.** Every decision, tool call, and cloud action stays in an execution history agents and people can inspect.
+- **Memory and context.** Sessions keep long-term context so agents do not start from zero each time.
+- **Guardrails.** Scoped permissions, human approval for dangerous operations, and an audit trail of what the agent did.
+
+The public site walks from a prompt to running software: define the agent, compose the workflow, test it in a sandbox, then deploy.
 
 ## Setup
 
