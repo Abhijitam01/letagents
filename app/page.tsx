@@ -1,13 +1,13 @@
 "use client"
 
-import React, { useRef, useEffect, useState, useCallback } from "react"
-import { IntroAnimation, INTRO_DURATION_MS, HERO_REVEAL_MS } from "@/components/intro-animation"
+import React, { useRef, useEffect, useState } from "react"
 import { PixelIcon } from "@/components/pixel-icon"
 import { RevealText } from "@/components/reveal-text"
 import { StackingAgentCards } from "@/components/stacking-agent-cards"
 import { MobileNav } from "@/components/mobile-nav"
 import { DevExSection } from "@/components/devex-section"
-import { joinWaitlist } from "@/app/actions/waitlist"
+import { Hero } from "@/components/hero"
+import { WaitlistForm } from "@/components/waitlist-form"
 
 // ─── Intersection Observer hook ──────────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -76,22 +76,6 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function AgenticPage() {
-  const [email, setEmail] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-  const [statusMessage, setStatusMessage] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [heroReady, setHeroReady] = useState(false)
-  const [videoReady, setVideoReady] = useState(false)
-  const handleIntroDone = useCallback(() => {
-    setHeroReady(true)
-  }, [])
-
-  // Start video zoom slightly before hero content reveals, for seamless overlap
-  useEffect(() => {
-    const t = setTimeout(() => setVideoReady(true), HERO_REVEAL_MS)
-    return () => clearTimeout(t)
-  }, [])
-
   const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget
     const rect = el.getBoundingClientRect()
@@ -102,81 +86,8 @@ export default function AgenticPage() {
   return (
     <div className="bg-[#F5F4F0] text-[#111] min-h-screen font-sans antialiased">
 
-      {/* ── INTRO ANIMATION ───────────────────────────────────────────────── */}
-      <IntroAnimation onDone={handleIntroDone} />
-
-      {/* ── STICKY NAV ────────────────────────────────────────────────────── */}
       <MobileNav />
-
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative h-screen overflow-hidden">
-
-        {/* Video background — zooms in once intro is done */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/agentic-hero-9yW3wnTNMfn2U6lsVhTTZSJFEvAoSj.mp4"
-          style={{
-            transform: videoReady ? "scale(1.05)" : "scale(0.85)",
-            transition: "transform 2s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        />
-
-
-
-        {/* Progressive blur + light gradient rising from bottom */}
-        <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none" style={{ height: "65%", background: "linear-gradient(to top, #F5F4F0 0%, #F5F4F0 18%, rgba(245,244,240,0.85) 35%, rgba(245,244,240,0.5) 55%, rgba(245,244,240,0.15) 75%, transparent 100%)" }} />
-        {/* Backdrop blur layers — progressively lighter toward top */}
-        <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none" style={{ height: "20%", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", maskImage: "linear-gradient(to top, black 0%, transparent 100%)", WebkitMaskImage: "linear-gradient(to top, black 0%, transparent 100%)" }} />
-        <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none" style={{ height: "38%", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", maskImage: "linear-gradient(to top, black 0%, transparent 100%)", WebkitMaskImage: "linear-gradient(to top, black 0%, transparent 100%)" }} />
-        <div className="absolute inset-x-0 bottom-0 z-10 pointer-events-none" style={{ height: "55%", backdropFilter: "blur(2px)", WebkitBackdropFilter: "blur(2px)", maskImage: "linear-gradient(to top, black 0%, transparent 100%)", WebkitMaskImage: "linear-gradient(to top, black 0%, transparent 100%)" }} />
-
-        {/* Spacer so hero content doesn't sit under the fixed nav */}
-        <div className="h-20" />
-
-        {/* Title + metrics — anchored to bottom left */}
-        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col px-6 md:px-12 pb-8 md:pb-12 max-w-5xl">
-          <div
-            className="mb-5 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.24em] text-black/45"
-            style={{ opacity: heroReady ? 1 : 0, transform: heroReady ? "translateY(0)" : "translateY(14px)", transition: "opacity 0.7s ease 80ms, transform 0.7s ease 80ms" }}
-          >
-            <span className="h-px w-8 bg-black/30" aria-hidden="true" />
-            Agent cloud infrastructure
-          </div>
-          {/* Title */}
-          <h1
-            className="max-w-4xl text-[clamp(3.6rem,10vw,8.75rem)] font-light text-[#111] leading-[0.9] tracking-[-0.055em] mb-8 md:mb-10"
-            style={{
-              fontFamily: '"IBM Plex Sans", sans-serif',
-              opacity: heroReady ? 1 : 0,
-              filter: heroReady ? "blur(0px)" : "blur(24px)",
-              transform: heroReady ? "translateY(0px)" : "translateY(32px)",
-              transition: "opacity 1s cubic-bezier(0.16,1,0.3,1) 0ms, filter 1s cubic-bezier(0.16,1,0.3,1) 0ms, transform 1s cubic-bezier(0.16,1,0.3,1) 0ms",
-            }}
-          >
-            Let agents<br />run the<br />cloud.
-          </h1>
-          <p
-            className="mb-8 max-w-md text-sm leading-relaxed text-black/55 md:text-base"
-            style={{ opacity: heroReady ? 1 : 0, transform: heroReady ? "translateY(0)" : "translateY(18px)", transition: "opacity 0.8s ease 120ms, transform 0.8s ease 120ms" }}
-          >
-            A calm, controlled layer for deploying, observing, and operating the infrastructure your agents depend on.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 items-start" style={{ opacity: heroReady ? 1 : 0, transform: heroReady ? "translateY(0)" : "translateY(20px)", transition: "opacity 0.8s ease 180ms, transform 0.8s ease 180ms" }}>
-            <a href="#waitlist" className="inline-flex items-center justify-center rounded-xl bg-[#111] px-6 py-3 text-[11px] tracking-[0.16em] text-white transition-colors hover:bg-black/75">
-              JOIN THE WAITLIST
-            </a>
-            <a href="#workflow" className="inline-flex items-center justify-center rounded-xl border border-black/15 bg-white/40 px-6 py-3 text-[11px] tracking-[0.16em] text-black/65 transition-colors hover:bg-white/70">
-              SEE HOW IT WORKS
-            </a>
-          </div>
-
-        </div>
-      </section>
+      <Hero />
 
       {/* ── PLATFORM OVERVIEW (bento) ──────────────────────────────────────── */}
       <section id="platform" className="py-32 px-6 md:px-12 lg:px-20">
@@ -476,7 +387,7 @@ export default function AgenticPage() {
 
       {/* ── MARQUEE CAPABILITIES ──────────────────────────────────────────── */}
       <section className="py-0 border-t border-black/[0.06] overflow-hidden select-none">
-        <div className="flex border-b border-black/[0.06]" style={{ animation: "marqueeLeft 28s linear infinite" }}>
+        <div className="marquee-left flex border-b border-black/[0.06]">
           {[...Array(3)].map((_, rep) => (
             <div key={rep} className="flex shrink-0">
               {["Provisioning", "Deployments", "Environment Setup", "Cloud Configuration", "Log Inspection", "Access Policies", "Database Operations", "Storage", "Networking", "Agent Tools"].map((cap) => (
@@ -488,7 +399,7 @@ export default function AgenticPage() {
             </div>
           ))}
         </div>
-        <div className="flex" style={{ animation: "marqueeRight 22s linear infinite" }}>
+        <div className="marquee-right flex">
           {[...Array(3)].map((_, rep) => (
             <div key={rep} className="flex shrink-0">
               {["Agent Runs", "Cloud Deployments", "Execution Traces", "Runtime Logs", "Secrets", "Domains", "Rollbacks", "Scaling", "Health Checks", "Approvals"].map((cap) => (
@@ -534,53 +445,11 @@ export default function AgenticPage() {
             Start building your<br />agent workforce.
           </h2>
           <p className="text-sm text-black/45 leading-relaxed mb-10">
-            Join thousands of teams deploying AI agents that work around the clock, across every timezone.
+            Leave an email. We'll write when a seat opens.
           </p>
-          {!submitted ? (
-            <>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-                setIsSubmitting(true)
-                setStatusMessage("")
-                const result = await joinWaitlist(email)
-                setStatusMessage(result.message)
-                setSubmitted(result.ok)
-                setIsSubmitting(false)
-              }}
-              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
-              aria-describedby={statusMessage ? "waitlist-status" : undefined}
-            >
-              <label htmlFor="waitlist-email" className="sr-only">Email address</label>
-              <input
-                id="waitlist-email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                maxLength={254}
-                autoComplete="email"
-                className="flex-1 min-w-0 bg-white border border-black/10 rounded-xl px-4 py-3 text-sm text-[#111] placeholder:text-black/25 focus:outline-none focus:border-black/25 transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-8 py-3 bg-[#111] text-white text-sm rounded-xl hover:bg-[#333] disabled:cursor-wait disabled:opacity-60 transition-colors tracking-widest font-medium"
-              >
-                {isSubmitting ? "SENDING" : "JOIN"}
-              </button>
-            </form>
-            {statusMessage && !submitted && (
-              <p id="waitlist-status" role="alert" className="mt-3 text-xs text-red-700">{statusMessage}</p>
-            )}
-            </>
-          ) : (
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-emerald-600/20 bg-emerald-50 text-emerald-700 text-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {statusMessage || "You're on the list. We'll be in touch."}
-            </div>
-          )}
+          <div className="mx-auto max-w-md text-left">
+            <WaitlistForm idPrefix="footer" />
+          </div>
         </div>
       </section>
 
@@ -606,17 +475,16 @@ export default function AgenticPage() {
           {/* Legal links */}
           <div className="flex items-center gap-6">
             {[
-              { label: "Privacy", href: "#" },
-              { label: "Terms",   href: "#" },
-              { label: "Docs",    href: "#" },
-              { label: "GitHub",  href: "#" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms",   href: "/terms" },
+              { label: "GitHub",  href: "https://github.com/Abhijitam01/letagents" },
             ].map(l => (
               <a key={l.label} href={l.href} className="text-xs text-black/25 hover:text-black/55 transition-colors tracking-widest">{l.label}</a>
             ))}
           </div>
         </div>
         <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-black/[0.04]">
-          <span className="text-xs text-black/20">© 2026 Agentic. All rights reserved.</span>
+          <span className="text-xs text-black/20">© 2026 LetAgents. All rights reserved.</span>
         </div>
       </footer>
     </div>

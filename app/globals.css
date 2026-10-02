@@ -75,9 +75,10 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  --font-pixel: 'Courier Prime', monospace;
+  --font-sans: var(--font-geist-sans), "Geist", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-plex), "IBM Plex Sans", sans-serif;
+  --font-pixel: var(--font-courier), "Courier Prime", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -201,6 +202,41 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-enter {
+  animation: hero-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.marquee-left {
+  animation: marqueeLeft 28s linear infinite;
+}
+
+.marquee-right {
+  animation: marqueeRight 22s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-enter,
+  .marquee-left,
+  .marquee-right {
+    animation: none;
+  }
 }
 
 /* Marquee animations */
