@@ -1,11 +1,24 @@
-import { drizzle } from "drizzle-orm/node-postgres"
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
+import { getDatabaseUrl } from "@/lib/env"
 import * as schema from "./schema"
 
-const globalForDb = globalThis as unknown as { waitlistPool?: Pool }
+type Database = NodePgDatabase<typeof schema>
 
-export const pool = globalForDb.waitlistPool ?? new Pool({ connectionString: process.env.DATABASE_URL })
+const globalForDb = globalThis as unknown as {
+  waitlistPool?: Pool
+  waitlistDb?: Database
+}
 
-if (process.env.NODE_ENV !== "production") globalForDb.waitlistPool = pool
+export function getDb() {
+  const connectionString = getDatabaseUrl()
+  if (!connectionString) return null
 
-export const db = drizzle(pool, { schema })
+  if (!globalForDb.waitlistDb) {
+    const pool = globalForDb.waitlistPool ?? new Pool({ connectionString, max: 5 })
+    globalForDb.waitlistPool = pool
+    globalForDb.waitlistDb = drizzle(pool, { schema })
+  }
+
+  return globalForDb.waitlistDb
+}
